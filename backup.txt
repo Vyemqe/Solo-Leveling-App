@@ -1,0 +1,616 @@
+v1.0.0
+
+#! HTML/CSS Logic
+# --- HTML / UI TEMPLATE ---
+HTML_TEMPLATE = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYSTEM | Solo Leveling</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sl-blue: #00f0ff;
+            --sl-dark: #070a13;
+            --sl-panel: rgba(12, 18, 34, 0.85);
+        }
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--sl-dark);
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            background-image: radial-gradient(circle at center, #111a30 0%, #04060b 100%);
+            height: 100vh; display: flex; justify-content: center; align-items: center;
+        }
+        .container {
+            width: 800px; display: grid; grid-template-columns: 1fr 2fr; gap: 20px;
+        }
+        .panel {
+            background: var(--sl-panel);
+            border: 1px solid var(--sl-blue);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+            padding: 20px; border-radius: 4px;
+        }
+        h2 { margin-top: 0; color: var(--sl-blue); text-transform: uppercase; letter-spacing: 2px; }
+        
+        /* Stats Panel */
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1.2rem; }
+        .xp-bar-bg { width: 100%; height: 20px; background: #222; border: 1px solid #555; margin-top: 10px; }
+        .xp-bar-fill { height: 100%; background: var(--sl-blue); width: {{ (player.xp / player.max_xp) * 100 }}%; transition: width 0.5s ease-out; box-shadow: 0 0 10px var(--sl-blue); }
+        
+        /* Quest Panel */
+        .task-list { list-style: none; padding: 0; max-height: 400px; overflow-y: auto; }
+        .task-item { 
+            background: rgba(255,255,255,0.05); padding: 15px; margin-bottom: 10px; 
+            display: flex; justify-content: space-between; align-items: center;
+            border-left: 3px solid var(--sl-blue); transition: 0.3s;
+        }
+        .task-item:hover { background: rgba(255,255,255,0.1); }
+        .task-item.completed { opacity: 0.5; border-color: #555; text-decoration: line-through; }
+        button { 
+            background: transparent; border: 1px solid var(--sl-blue); color: var(--sl-blue);
+            padding: 8px 15px; cursor: pointer; font-family: 'Rajdhani'; font-weight: bold; text-transform: uppercase;
+        }
+        button:hover { background: var(--sl-blue); color: var(--sl-dark); }
+        
+        input[type="text"], input[type="number"] {
+            padding: 10px; background: rgba(0,0,0,0.5); 
+            border: 1px solid #555; color: #fff; font-family: 'Rajdhani';
+        }
+        input[type="text"] { width: calc(70% - 20px); }
+        input[type="number"] { width: calc(30% - 20px); }
+
+        /* Minecraft Achievement Toast */
+        .mc-toast {
+            position: fixed; top: -100px; right: 20px; width: 320px;
+            background: #212121; border: 2px solid #555; border-radius: 2px;
+            display: flex; align-items: center; padding: 12px;
+            box-shadow: inset -2px -2px 0px rgba(0,0,0,0.5), inset 2px 2px 0px rgba(255,255,255,0.2), 4px 4px 0px rgba(0,0,0,0.5);
+            transition: top 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000; font-family: 'Courier New', Courier, monospace;
+        }
+        .mc-toast.show { top: 20px; }
+        .mc-icon { 
+            width: 32px; height: 32px; margin-right: 15px; image-rendering: pixelated;
+            background: url('https://minecraft.wiki/images/Diamond_Sword_JE2_BE2.png') no-repeat center/contain; 
+        }
+        .mc-text { display: flex; flex-direction: column; }
+        .mc-title { color: #ffff55; font-size: 14px; margin-bottom: 4px; font-weight: bold; }
+        .mc-desc { color: #ffffff; font-size: 14px; }
+
+        /* Solo Leveling Level Up Modal */
+        .sl-levelup {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(7, 10, 19, 0.95); border: 2px solid var(--sl-blue);
+            box-shadow: 0 0 30px var(--sl-blue); padding: 40px 80px; text-align: center; z-index: 2000;
+        }
+        .sl-levelup h1 { margin: 0; color: var(--sl-blue); font-size: 4rem; letter-spacing: 5px; text-shadow: 0 0 15px var(--sl-blue); }
+    </style>
+</head>
+<body>
+
+    <!-- Minecraft Toast -->
+    <div class="mc-toast" id="mcToast">
+        <div class="mc-icon"></div>
+        <div class="mc-text">
+            <div class="mc-title">Achievement Get!</div>
+            <div class="mc-desc" id="mcDesc">Task Completed</div>
+        </div>
+    </div>
+
+    <!-- Level Up Modal -->
+    <div class="sl-levelup" id="lvlUpModal">
+        <h1>LEVEL UP!</h1>
+        <p style="font-size: 1.5rem; color: #aaa;">Your stats have increased.</p>
+        <button onclick="closeModal()">Confirm</button>
+    </div>
+
+    <div class="container">
+        <!-- Stats Panel -->
+        <div class="panel">
+            <h2>System Status</h2>
+            <div class="stat-row"><span>Name:</span> <span>Player</span></div>
+            <div class="stat-row"><span>Title:</span> <span id="ui-title">{{ player.title }}</span></div>
+            <div class="stat-row"><span>Level:</span> <span id="ui-level">{{ player.level }}</span></div>
+            
+            <div style="margin-top: 30px;">
+                <div class="stat-row"><span>XP:</span> <span id="ui-xp-text">{{ player.xp }} / {{ player.max_xp }}</span></div>
+                <div class="xp-bar-bg">
+                    <div class="xp-bar-fill" id="ui-xp-bar"></div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <button onclick="clearCompleted()" style="width: 100%; font-size: 0.9rem; border-color: #555; color: #aaa;">Clear Completed Quests</button>
+            </div>
+        </div>
+
+        <!-- Quests Panel -->
+        <div class="panel">
+            <h2>Daily Quests</h2>
+            <ul class="task-list" id="taskList">
+                {% for task in tasks %}
+                <li class="task-item {% if task.completed %}completed{% endif %}" id="task-{{ task.id }}">
+                    <div>
+                        <strong>{{ task.title }}</strong><br>
+                        <small style="color: #aaa;">Reward: {{ task.xp }} XP</small>
+                    </div>
+                    {% if not task.completed %}
+                    <button onclick="completeTask({{ task.id }}, '{{ task.title }}')">Complete</button>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <input type="text" id="newTask" placeholder="Add a new quest...">
+                <input type="number" id="newTaskXP" placeholder="XP (e.g. 40)">
+                <button onclick="addTask()">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function completeTask(taskId, taskTitle) {
+            const res = await fetch('/complete', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({id: taskId})
+            });
+            const data = await res.json();
+            
+            if(data.success) {
+                // Update UI visually
+                const taskItem = document.getElementById('task-' + taskId);
+                taskItem.classList.add('completed');
+                const btn = taskItem.querySelector('button');
+                if(btn) btn.remove();
+                
+                // Update Stats
+                document.getElementById('ui-xp-text').innerText = data.player.xp + ' / ' + data.player.max_xp;
+                document.getElementById('ui-xp-bar').style.width = (data.player.xp / data.player.max_xp * 100) + '%';
+                document.getElementById('ui-level').innerText = data.player.level;
+
+                // Show Minecraft Achievement Toast
+                showAchievement(taskTitle);
+
+                // Show Level Up Modal if leveled up
+                if(data.leveled_up) {
+                    setTimeout(() => {
+                        document.getElementById('lvlUpModal').style.display = 'block';
+                    }, 1000);
+                }
+            }
+        }
+
+        async function addTask() {
+            const title = document.getElementById('newTask').value;
+            const xp = document.getElementById('newTaskXP').value;
+            if(!title) return;
+
+            const res = await fetch('/add', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({title: title, xp: parseInt(xp) || 40})
+            });
+            
+            if(res.ok) window.location.reload();
+        }
+        
+        async function clearCompleted() {
+            const res = await fetch('/clear', { method: 'POST' });
+            if(res.ok) window.location.reload();
+        }
+
+        function showAchievement(taskName) {
+            const toast = document.getElementById('mcToast');
+            document.getElementById('mcDesc').innerText = taskName;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
+        function closeModal() {
+            document.getElementById('lvlUpModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
+"""
+
+
+
+v1.1.1
+
+from flask import Flask, render_template_string, request, jsonify
+from datetime import datetime
+import json
+import os
+
+app = Flask(__name__)
+SAVE_FILE = "curr_data.json"
+
+#! Tier-Ranking System
+def get_rank(level):
+    if level >= 300: return "SSS-Rank Hunter"
+    if level >= 150: return "SS-Rank Hunter"
+    if level >= 100: return "S-Rank Hunter"
+    if level >= 75: return "A-Rank Hunter"
+    if level >= 50: return "B-Rank Hunter"
+    if level >= 25: return "C-Rank Hunter"
+    if level >= 10: return "D-Rank Hunter"
+    return "E-Rank Hunter"
+
+#! Default App State
+DEFAULT_DATA = {
+    "player": {
+        "level": 1,
+        "xp": 0,
+        "max_xp": 100,
+        "title": "E-Rank Hunter",
+    },
+    "tasks": [
+        {"id": 1, "title": "100 Skipping", "xp": 20, "completed": False, "archived": False, "completed_at": None},
+        {"id": 2, "title": "10 Push-ups", "xp": 10, "completed": False, "archived": False, "completed_at": None},
+        {"id": 3, "title": "100 Squats", "xp": 25, "completed": False, "archived": False, "completed_at": None}
+    ],
+    "task_id_counter": 4
+}
+
+#! Save/Load Data from curr_data.json
+def load_data():
+    if os.path.exists(SAVE_FILE):
+        with open(SAVE_FILE, "r") as f:
+            data = json.load(f)
+            # Ensure old saves have the new 'archived' key and correct rank
+            for task in data.get("tasks", []):
+                if "archived" not in task:
+                    task["archived"] = False
+                if "completed_at" not in task:
+                    task["completed_at"] = None
+            # Get the current rank
+            data["player"]["title"] = get_rank(data["player"].get("level", 1))
+            return data
+    return DEFAULT_DATA.copy()
+
+def save_data(data):
+    with open(SAVE_FILE, "w") as f:
+        json.dump(data, f, indent=4)
+
+
+#! Load data on start-up
+game_data = load_data()
+
+# --- CSS / STYLES (Shared between pages) ---
+COMMON_HEAD = """
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYSTEM | Solo Leveling</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sl-blue: #00f0ff;
+            --sl-dark: #070a13;
+            --sl-panel: rgba(12, 18, 34, 0.85);
+        }
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--sl-dark);
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            background-image: radial-gradient(circle at center, #111a30 0%, #04060b 100%);
+            height: 100vh; display: flex; justify-content: center; align-items: center; flex-direction: column;
+        }
+        .container {
+            width: 800px; display: grid; grid-template-columns: 1fr 2fr; gap: 20px;
+        }
+        .full-container { width: 800px; display: flex; flex-direction: column; gap: 20px; }
+        .panel {
+            background: var(--sl-panel); border: 1px solid var(--sl-blue);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+            padding: 20px; border-radius: 4px;
+        }
+        h2 { margin-top: 0; color: var(--sl-blue); text-transform: uppercase; letter-spacing: 2px; }
+        
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1.2rem; }
+        .stat-row .rank { color: #ffd700; text-shadow: 0 0 5px #ffd700; font-weight: bold; }
+        .xp-bar-bg { width: 100%; height: 20px; background: #222; border: 1px solid #555; margin-top: 10px; }
+        .xp-bar-fill { height: 100%; background: var(--sl-blue); transition: width 0.5s ease-out; box-shadow: 0 0 10px var(--sl-blue); }
+        
+        .task-list { list-style: none; padding: 0; max-height: 400px; overflow-y: auto; }
+        .task-item { 
+            background: rgba(255,255,255,0.05); padding: 15px; margin-bottom: 10px; 
+            display: flex; justify-content: space-between; align-items: center;
+            border-left: 3px solid var(--sl-blue); transition: 0.3s;
+        }
+        .task-item:hover { background: rgba(255,255,255,0.1); }
+        .task-item.completed { opacity: 0.5; border-color: #555; text-decoration: line-through; }
+        .task-item.history-item { text-decoration: none; opacity: 0.8; border-color: #55f; }
+        
+        button, .nav-btn { 
+            background: transparent; border: 1px solid var(--sl-blue); color: var(--sl-blue);
+            padding: 8px 15px; cursor: pointer; font-family: 'Rajdhani'; font-weight: bold; 
+            text-transform: uppercase; text-decoration: none; display: inline-block; text-align: center;
+        }
+        button:hover, .nav-btn:hover { background: var(--sl-blue); color: var(--sl-dark); }
+        .nav-btn.secondary { border-color: #555; color: #aaa; margin-top: 15px; width: 100%; box-sizing: border-box; }
+        .nav-btn.secondary:hover { background: #555; color: #fff; }
+        
+        input[type="text"], input[type="number"] {
+            padding: 10px; background: rgba(0,0,0,0.5); 
+            border: 1px solid #555; color: #fff; font-family: 'Rajdhani';
+        }
+        input[type="text"] { width: calc(70% - 20px); }
+        input[type="number"] { width: calc(30% - 20px); }
+
+        /* Minecraft Toast */
+        .mc-toast {
+            position: fixed; top: -100px; right: 20px; width: 320px;
+            background: #212121; border: 2px solid #555; border-radius: 2px;
+            display: flex; align-items: center; padding: 12px;
+            box-shadow: inset -2px -2px 0px rgba(0,0,0,0.5), inset 2px 2px 0px rgba(255,255,255,0.2), 4px 4px 0px rgba(0,0,0,0.5);
+            transition: top 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000; font-family: 'Courier New', Courier, monospace;
+        }
+        .mc-toast.show { top: 20px; }
+        .mc-icon { 
+            width: 32px; height: 32px; margin-right: 15px; image-rendering: pixelated;
+            background: url('https://minecraft.wiki/images/Diamond_Sword_JE2_BE2.png') no-repeat center/contain; 
+        }
+        .mc-title { color: #ffff55; font-size: 14px; margin-bottom: 4px; font-weight: bold; }
+        .mc-desc { color: #ffffff; font-size: 14px; }
+
+        /* Level Up Modal */
+        .sl-levelup {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(7, 10, 19, 0.95); border: 2px solid var(--sl-blue);
+            box-shadow: 0 0 30px var(--sl-blue); padding: 40px 80px; text-align: center; z-index: 2000;
+        }
+        .sl-levelup h1 { margin: 0; color: var(--sl-blue); font-size: 4rem; letter-spacing: 5px; text-shadow: 0 0 15px var(--sl-blue); }
+    </style>
+"""
+
+# --- HTML TEMPLATES ---
+INDEX_HTML = f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {COMMON_HEAD}
+</head>
+<body>
+    <!-- Minecraft Toast & Level Up Modal -->
+    <div class="mc-toast" id="mcToast">
+        <div class="mc-icon"></div>
+        <div>
+            <div class="mc-title">Achievement Get!</div>
+            <div class="mc-desc" id="mcDesc">Task Completed</div>
+        </div>
+    </div>
+    <div class="sl-levelup" id="lvlUpModal">
+        <h1>LEVEL UP!</h1>
+        <p style="font-size: 1.5rem; color: #aaa;">Your Rank is now: <span id="modal-rank" style="color: #ffd700;"></span></p>
+        <button onclick="closeModal()">Confirm</button>
+    </div>
+
+    <div class="container">
+        <!-- Stats Panel -->
+        <div class="panel">
+            <h2>System Status</h2>
+            <div class="stat-row"><span>Name:</span> <span>Player</span></div>
+            <div class="stat-row"><span>Rank:</span> <span id="ui-title" class="rank">{{{{ player.title }}}}</span></div>
+            <div class="stat-row"><span>Level:</span> <span id="ui-level">{{{{ player.level }}}}</span></div>
+            
+            <div style="margin-top: 30px;">
+                <div class="stat-row"><span>XP:</span> <span id="ui-xp-text">{{{{ player.xp }}}} / {{{{ player.max_xp }}}}</span></div>
+                <div class="xp-bar-bg">
+                    <div class="xp-bar-fill" id="ui-xp-bar" style="width: {{{{ (player.xp / player.max_xp) * 100 }}}}%;"></div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <a href="/history" class="nav-btn" style="width: 100%; box-sizing: border-box; margin-bottom: 10px;">View Quest History</a>
+                <button onclick="clearCompleted()" style="width: 100%; font-size: 0.9rem; border-color: #555; color: #aaa;">Archive Completed Quests</button>
+            </div>
+        </div>
+
+        <!-- Quests Panel -->
+        <div class="panel">
+            <h2>Active Quests</h2>
+            <ul class="task-list">
+                {{% for task in tasks %}}
+                <li class="task-item {{% if task.completed %}}completed{{% endif %}}" id="task-{{{{ task.id }}}}">
+                    <div>
+                        <strong>{{{{ task.title }}}}</strong><br>
+                        <small style="color: #aaa;">Reward: {{{{ task.xp }}}} XP</small>
+                    </div>
+                    {{% if not task.completed %}}
+                    <button onclick="completeTask({{{{ task.id }}}}, '{{{{ task.title }}}}')">Complete</button>
+                    {{% endif %}}
+                </li>
+                {{% endfor %}}
+            </ul>
+            
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <input type="text" id="newTask" placeholder="Add a new quest...">
+                <input type="number" id="newTaskXP" placeholder="XP (e.g. 40)">
+                <button onclick="addTask()">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function completeTask(taskId, taskTitle) {{
+            const res = await fetch('/complete', {{
+                method: 'POST',
+                headers: {{'Content-Type': 'application/json'}},
+                body: JSON.stringify({{id: taskId}})
+            }});
+            const data = await res.json();
+            
+            if(data.success) {{
+                const taskItem = document.getElementById('task-' + taskId);
+                taskItem.classList.add('completed');
+                const btn = taskItem.querySelector('button');
+                if(btn) btn.remove();
+                
+                document.getElementById('ui-xp-text').innerText = data.player.xp + ' / ' + data.player.max_xp;
+                document.getElementById('ui-xp-bar').style.width = (data.player.xp / data.player.max_xp * 100) + '%';
+                document.getElementById('ui-level').innerText = data.player.level;
+                document.getElementById('ui-title').innerText = data.player.title;
+
+                showAchievement(taskTitle);
+
+                if(data.leveled_up) {{
+                    document.getElementById('modal-rank').innerText = data.player.title;
+                    setTimeout(() => {{
+                        document.getElementById('lvlUpModal').style.display = 'block';
+                    }}, 1000);
+                }}
+            }}
+        }}
+
+        async function addTask() {{
+            const title = document.getElementById('newTask').value;
+            const xp = document.getElementById('newTaskXP').value;
+            if(!title) return;
+            const res = await fetch('/add', {{
+                method: 'POST',
+                headers: {{'Content-Type': 'application/json'}},
+                body: JSON.stringify({{title: title, xp: parseInt(xp) || 40}})
+            }});
+            if(res.ok) window.location.reload();
+        }}
+        
+        async function clearCompleted() {{
+            const res = await fetch('/clear', {{ method: 'POST' }});
+            if(res.ok) window.location.reload();
+        }}
+
+        function showAchievement(taskName) {{
+            const toast = document.getElementById('mcToast');
+            document.getElementById('mcDesc').innerText = taskName;
+            toast.classList.add('show');
+            setTimeout(() => {{ toast.classList.remove('show'); }}, 4000);
+        }}
+
+        function closeModal() {{
+            document.getElementById('lvlUpModal').style.display = 'none';
+        }}
+    </script>
+</body>
+</html>
+"""
+
+HISTORY_HTML = f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {COMMON_HEAD}
+</head>
+<body>
+    <div class="full-container">
+        <div class="panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--sl-blue); padding-bottom: 10px; margin-bottom: 20px;">
+                <h2 style="margin: 0;">Completed Quests Log</h2>
+                <a href="/" class="nav-btn">Return to System</a>
+            </div>
+            
+            <ul class="task-list" style="max-height: 600px;">
+                {{% if tasks|length == 0 %}}
+                    <p style="text-align: center; color: #aaa; font-size: 1.2rem;">No completed quests found in the archives.</p>
+                {{% endif %}}
+                
+                {{% for task in tasks %}}
+                <li class="task-item history-item">
+                    <div>
+                        <strong style="color: #00f0ff;">[CLEARED]</strong> {{{{ task.title }}}}
+                        {{% if task.completed_at %}}
+                        <br>
+                        <small style="color: #888;">Cleared on: {{{{ task.completed_at }}}}</small>
+                        {{% endif %}}
+                    </div>
+                    <div style="color: #ffd700; font-weight: bold;">
+                        +{{{{ task.xp }}}} XP
+                    </div>
+                </li>
+                {{% endfor %}}
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
+"""
+
+#! Routing API
+@app.route("/")
+def index():
+    # return render_template_string(HTML_TEMPLATE, player=game_data["player"], tasks=game_data["tasks"])
+    # Only show tasks that are NOT archived
+    active_tasks = [task for task in game_data["tasks"] if not task.get("archived", False)]
+    return render_template_string(INDEX_HTML, player=game_data["player"], tasks=active_tasks)
+
+@app.route("/history")
+def history():
+    # Show ALL completed tasks (whether archived or recently completed)
+    completed_tasks = [task for task in reversed(game_data["tasks"]) if task["completed"]]
+    return render_template_string(HISTORY_HTML, tasks=completed_tasks)
+
+@app.route("/complete", methods=["POST"])
+def complete_task():
+    task_id = request.json.get("id")
+    leveled_up = False
+    for task in game_data["tasks"]:
+        if task["id"] == task_id and not task["completed"]:
+            task["completed"] = True
+            # Stamp the exact time the task was completed
+            task["completed_at"] = datetime.now().strftime("%Y-%m-%d %I:%M %p")
+            game_data["player"]["xp"] += task["xp"]
+            # Level up loop (in case a task gives enough XP to jump multiple levels)
+            while game_data["player"]["xp"] >= game_data["player"]["max_xp"]:
+                game_data["player"]["level"] += 1
+                game_data["player"]["xp"] -= game_data["player"]["max_xp"]
+                game_data["player"]["max_xp"] = int(game_data["player"]["max_xp"] * 1.5)
+                leveled_up = True
+            # Update rank based on new level
+            game_data["player"]["title"] = get_rank(game_data["player"]["level"])
+            # Save game
+            save_data(game_data)
+            return jsonify({"success": True, "player": game_data["player"], "leveled_up": leveled_up})
+    return jsonify({"success": False}), 400
+
+@app.route("/add", methods=["POST"])
+def add_task():
+    title = request.json.get("title")
+    xp = request.json.get("xp", 40)
+    game_data["tasks"].append({
+        "id": game_data["task_id_counter"],
+        "title": title,
+        "xp": xp,
+        "completed": False,
+        "archived": False,
+        "completed_at": None
+    })
+    game_data["task_id_counter"] += 1
+    # Save state
+    save_data(game_data)
+    return jsonify({"success": True})
+
+@app.route("/clear", methods=["POST"])
+def clear_tasks():
+    # # Keep only tasks that are NOT completed
+    # game_data["tasks"] = [task for task in game_data["tasks"] if not task["completed"]]
+    # save_data(game_data)
+    # return jsonify({"success": True})
+    # Instead of deleting, we set "archived" to True so they hide from the main page
+    for task in game_data["tasks"]:
+        if task["completed"]:
+            task["archived"] = True 
+    save_data(game_data)
+    return jsonify({"success": True})
+
+if __name__ == "__main__":
+    app.run(debug=True, port=9090)

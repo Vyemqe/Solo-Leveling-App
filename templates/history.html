@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .task-list { list-style: none; padding: 0; }
+    .task-item { 
+        background: rgba(255,255,255,0.05); padding: 15px; margin-bottom: 10px; 
+        display: flex; justify-content: space-between; align-items: center;
+        border-left: 3px solid #55f;
+    }
+</style>
+
+<div class="container" style="grid-template-columns: 1fr;">
+    <div class="panel">
+        <h2>Completed Quests Log</h2>
+        <ul class="task-list">
+            {% if tasks|length == 0 %}
+                <p style="text-align: center; color: #aaa;">No completed quests found.</p>
+            {% endif %}
+            
+            {% for task in tasks %}
+            <li class="task-item">
+                <div>
+                    <strong style="color: #00f0ff;">[CLEARED]</strong> {{ task.title }}
+                    {% if task.completed_at %}
+                    <br><small style="color: #888;">Cleared on: {{ task.completed_at }}</small>
+                    {% endif %}
+                </div>
+                <div style="color: #ffd700; font-weight: bold;">+{{ task.xp }} XP</div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .ach-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+    .ach-card { 
+        background: rgba(255,255,255,0.05); border: 1px solid #555; padding: 15px; 
+        display: flex; align-items: center; border-radius: 4px;
+    }
+    .ach-card.unlocked { border-color: var(--sl-blue); background: rgba(0, 240, 255, 0.05); }
+    .ach-card.locked { opacity: 0.5; filter: grayscale(100%); }
+    .ach-icon { 
+        width: 40px; height: 40px; background: #333; border: 2px solid #555; 
+        margin-right: 15px; display: flex; justify-content: center; align-items: center;
+        font-size: 1.5rem; font-weight: bold; font-family: 'Courier New', Courier, monospace;
+        box-shadow: inset 2px 2px 0 #777; flex-shrink: 0;
+    }
+    .unlocked .ach-icon { border-color: #ffd700; color: #ffd700; box-shadow: inset 2px 2px 0 #ffea70; }
+    .ach-title { color: #fff; font-weight: bold; font-size: 1.1rem; }
+    .unlocked .ach-title { color: #ffff55; }
+    .ach-desc { color: #ccc; font-size: 0.9rem; margin-top: 4px; }
+    .ach-date { color: #888; font-size: 0.8rem; margin-top: 5px; }
+</style>
+
+<div class="container">
+    <div class="panel">
+        <h2 style="display: flex; justify-content: space-between;">
+            Achievement Progress
+            <span style="color: #aaa; font-size: 1rem;">Total Quests Cleared: {{ stats.total_quests_completed }}</span>
+        </h2>
+        
+        <div class="ach-grid">
+            <!-- Render Unlocked Achievements first -->
+            {% for ach in unlocked %}
+            <div class="ach-card unlocked">
+                <div class="ach-icon">{{ ach.icon }}</div>
+                <div>
+                    <div class="ach-title">{{ ach.title }}</div>
+                    <div class="ach-desc">{{ ach.desc }}</div>
+                    <div class="ach-date">Unlocked: {{ ach.unlocked_at }}</div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Render Locked Achievements -->
+            {% for ach in locked %}
+            <div class="ach-card locked">
+                <div class="ach-icon">?</div>
+                <div>
+                    <div class="ach-title">{{ ach.title }}</div>
+                    <div class="ach-desc">{{ ach.desc }}</div>
+                    <div class="ach-date">Locked</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

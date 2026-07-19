@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .layout { grid-template-columns: 1fr 2fr; }
+    .stat-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1.2rem; }
+    .stat-row .rank { color: #ffd700; text-shadow: 0 0 5px #ffd700; font-weight: bold; }
+    .xp-bar-bg { width: 100%; height: 20px; background: #222; border: 1px solid #555; margin-top: 10px; }
+    .xp-bar-fill { height: 100%; background: var(--sl-blue); transition: width 0.5s ease-out; box-shadow: 0 0 10px var(--sl-blue); }
+    .task-list { list-style: none; padding: 0; max-height: 400px; overflow-y: auto; }
+    .task-item { 
+        background: rgba(255,255,255,0.05); padding: 15px; margin-bottom: 10px; 
+        display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--sl-blue); 
+    }
+    .task-item.completed { opacity: 0.5; border-color: #555; text-decoration: line-through; }
+    input { padding: 10px; background: rgba(0,0,0,0.5); border: 1px solid #555; color: #fff; font-family: 'Rajdhani'; }
+    
+    .sl-levelup {
+        display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        background: rgba(7, 10, 19, 0.95); border: 2px solid var(--sl-blue);
+        box-shadow: 0 0 30px var(--sl-blue); padding: 40px 80px; text-align: center; z-index: 2000;
+    }
+    .sl-levelup h1 { margin: 0; color: var(--sl-blue); font-size: 4rem; letter-spacing: 5px; text-shadow: 0 0 15px var(--sl-blue); }
+</style>
+
+<div class="sl-levelup" id="lvlUpModal">
+    <h1>LEVEL UP!</h1>
+    <p style="font-size: 1.5rem; color: #aaa;">Your Rank is now: <span id="modal-rank" style="color: #ffd700;"></span></p>
+    <button onclick="document.getElementById('lvlUpModal').style.display = 'none';">Confirm</button>
+</div>
+
+<div class="container layout">
+    <div class="panel">
+        <h2>System Status</h2>
+        <div class="stat-row"><span>Name:</span> <span>Player</span></div>
+        <div class="stat-row"><span>Rank:</span> <span id="ui-title" class="rank">{{ player.title }}</span></div>
+        <div class="stat-row"><span>Level:</span> <span id="ui-level">{{ player.level }}</span></div>
+        <div style="margin-top: 30px;">
+            <div class="stat-row"><span>XP:</span> <span id="ui-xp-text">{{ player.xp }} / {{ player.max_xp }}</span></div>
+            <div class="xp-bar-bg"><div class="xp-bar-fill" id="ui-xp-bar" style="width: {{ '%0.1f' % ((player.xp / player.max_xp) * 100) }}%;"></div></div>
+        </div>
+        <div style="margin-top: 30px;">
+            <button onclick="clearCompleted()" style="width: 100%; border-color: #555; color: #aaa;">Archive Completed</button>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Active Quests</h2>
+        <ul class="task-list">
+            {% for task in tasks %}
+            <li class="task-item {% if task.completed %}completed{% endif %}" id="task-{{ task.id }}">
+                <div>
+                    <strong>{{ task.title }}</strong><br>
+                    <small style="color: #aaa;">Reward: {{ task.xp }} XP</small>
+                </div>
+                {% if not task.completed %}
+                <button onclick="completeTask('{{ task.id }}')">Complete</button>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        <div style="margin-top: 20px; display: flex; gap: 10px;">
+            <input type="text" id="newTask" placeholder="Add quest..." style="width: 70%;">
+            <input type="number" id="newTaskXP" placeholder="XP" style="width: 30%;">
+            <button onclick="addTask()">Add</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function completeTask(taskId) {
+        const res = await fetch('/complete', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({id: taskId})
+        });
+        const data = await res.json();
+        
+        if(data.success) {
+            // UI Updates
+            const taskItem = document.getElementById('task-' + taskId);
+            taskItem.classList.add('completed');
+            const btn = taskItem.querySelector('button');
+            if(btn) btn.remove();
+            
+            document.getElementById('ui-xp-text').innerText = data.player.xp + ' / ' + data.player.max_xp;
+            document.getElementById('ui-xp-bar').style.width = (data.player.xp / data.player.max_xp * 100) + '%';
+            document.getElementById('ui-level').innerText = data.player.level;
+            document.getElementById('ui-title').innerText = data.player.title;
+
+            // Trigger Toasts Queue (Tasks + Achievements)
+            data.events.forEach(ev => addToast(ev.title, ev.desc, ev.icon));
+
+            // Level Up Modal
+            if(data.leveled_up) {
+                document.getElementById('modal-rank').innerText = data.player.title;
+                setTimeout(() => { document.getElementById('lvlUpModal').style.display = 'block'; }, 1500);
+            }
+        }
+    }
+    async function addTask() {
+        const title = document.getElementById('newTask').value;
+        const xp = document.getElementById('newTaskXP').value;
+        if(!title) return;
+        const res = await fetch('/add', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({title: title, xp: parseInt(xp) || 40})
+        });
+        if(res.ok) window.location.reload();
+    }
+    async function clearCompleted() {
+        await fetch('/clear', { method: 'POST' });
+        window.location.reload();
+    }
+</script>
+{% endblock %}

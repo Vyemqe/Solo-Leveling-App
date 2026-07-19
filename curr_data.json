@@ -1,0 +1,63 @@
+{
+    "player": {
+        "level": 2,
+        "xp": 70,
+        "max_xp": 125,
+        "title": "E-Rank Hunter"
+    },
+    "tasks": [
+        {
+            "id": 1,
+            "title": "100 Skipping",
+            "xp": 20,
+            "completed": false,
+            "archived": false,
+            "completed_at": null
+        },
+        {
+            "id": 2,
+            "title": "10 Push-ups",
+            "xp": 10,
+            "completed": false,
+            "archived": false,
+            "completed_at": null
+        },
+        {
+            "id": 3,
+            "title": "100 Squats",
+            "xp": 25,
+            "completed": false,
+            "archived": false,
+            "completed_at": null
+        },
+        {
+            "id": 4,
+            "title": "Making water chestnut pearls for 2 hours",
+            "xp": 120,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-19 07:02 PM"
+        },
+        {
+            "id": 5,
+            "title": "Add `Projects` section to CV",
+            "xp": 50,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-19 09:33 PM"
+        },
+        {
+            "id": 6,
+            "title": "Completing DES section in Crypto",
+            "xp": 75,
+            "completed": false,
+            "archived": false,
+            "completed_at": null
+        }
+    ],
+    "task_id_counter": 7,
+    "stats": {
+        "total_quests_completed": 2
+    },
+    "achievements": []
+}
