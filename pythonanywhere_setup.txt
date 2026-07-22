@@ -1,0 +1,34 @@
+To make your app accessible from anywhere in the world (even when your laptop is shut), you need a free host called PythonAnywhere.
+Here is how to deploy it:
+
+**Step 1: Put it on GitHub (Optional but recommended)**
+You should still put your code on GitHub! It acts as a bridge to safely move your code from your laptop to the cloud server.
+Upload your `app.py`, `save_data.json`, and the `templates/` folder to a new public or private repository.
+
+**Step 2: Set up PythonAnywhere**
+- Go to PythonAnywhere.com and create a free "Beginner" account. Your username will become your URL (e.g., yourusername.pythonanywhere.com).
+- Go to the Web tab and click Add a new web app.
+- Choose Flask and select the Python version you are using (e.g., Python 3.9 or 3.10).
+- It will ask you for a path to your Flask app. By default, it will create a file called mysite/flask_app.py. Just click Next.
+
+**Step 3: Replace their code with yours**
+- Go to the Files tab on the PythonAnywhere dashboard.
+- Go into the mysite/ directory.
+- You will see a file called `flask_app.py`. Open it, delete everything inside, and paste the code from your `app.py`. Save it.
+- Upload your `curr_data.json` file into this same mysite/ folder.
+- Inside the `mysite/` folder, create a new directory called templates.
+Go into it and upload your 4 HTML files (base.html, index.html, history.html, achievements.html).
+
+**Step 4: Fix the Save Path**
+Because cloud servers structure their folders differently, you need to change one line in your flask_app.py so it can find your save file.
+- Find this line near the top:
+Python
+SAVE_FILE = "save_data.json"
+- Change it to:
+Python
+import os
+THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
+SAVE_FILE = os.path.join(THIS_FOLDER, "save_data.json")
+
+**Step 5: Reload and Play**
+Go back to the Web tab and click the big green Reload yourusername.pythonanywhere.com button.

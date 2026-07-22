@@ -47,9 +47,9 @@ def load_data():
         with open(SAVE_FILE, "r") as f:
             data = json.load(f)
             # Migrations for older save files
-            if "stats" not in data: 
+            if "stats" not in data:
                 data["stats"] = {"total_quests_completed": sum(1 for t in data.get("tasks", []) if t.get("completed"))}
-            if "achievements" not in data: 
+            if "achievements" not in data:
                 data["achievements"] = []
             return data
     return DEFAULT_DATA.copy()
@@ -69,7 +69,27 @@ def index():
 def history():
     data = load_data()
     completed = [t for t in reversed(data["tasks"]) if t["completed"]]
-    return render_template("history.html", tasks=completed)
+    # return render_template("history.html", tasks=completed)
+        # 1. Sort descending by actual datetime (newest first)
+    def parse_time(task):
+        time_str = task.get("completed_at")
+        if time_str:
+            try:
+                return datetime.strptime(time_str, "%Y-%m-%d %I:%M %p")
+            except ValueError:
+                pass
+        return datetime.min # Fallback if time is broken
+    completed.sort(key=parse_time, reverse=True)
+    # 2. Group by date
+    grouped_tasks = {}
+    for task in completed:
+        time_str = task.get("completed_at")
+        date_key = time_str.split(" ")[0] if time_str else "Unknown Date"
+        if date_key not in grouped_tasks:
+            grouped_tasks[date_key] = []
+        grouped_tasks[date_key].append(task)
+    return render_template("history.html", grouped_tasks=grouped_tasks)
+
 
 @app.route("/achievements")
 def achievements():
@@ -129,8 +149,8 @@ def complete_task():
             # Save state
             save_data(data)
             return jsonify({
-                "success": True, 
-                "player": data["player"], 
+                "success": True,
+                "player": data["player"],
                 "leveled_up": leveled_up,
                 "events": events
             })

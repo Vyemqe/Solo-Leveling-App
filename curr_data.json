@@ -1,14 +1,14 @@
 {
     "player": {
-        "level": 2,
-        "xp": 70,
-        "max_xp": 125,
+        "level": 8,
+        "xp": 345,
+        "max_xp": 472,
         "title": "E-Rank Hunter"
     },
     "tasks": [
         {
             "id": 1,
-            "title": "100 Skipping",
+            "title": "[Exercise] 100 Skipping",
             "xp": 20,
             "completed": false,
             "archived": false,
@@ -16,15 +16,15 @@
         },
         {
             "id": 2,
-            "title": "10 Push-ups",
+            "title": "[Exercise] 10 Push-ups",
             "xp": 10,
-            "completed": false,
-            "archived": false,
-            "completed_at": null
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-19 03:02 PM"
         },
         {
             "id": 3,
-            "title": "100 Squats",
+            "title": "[Exercise] 100 Squats",
             "xp": 25,
             "completed": false,
             "archived": false,
@@ -32,7 +32,7 @@
         },
         {
             "id": 4,
-            "title": "Making water chestnut pearls for 2 hours",
+            "title": "[Side Quest] Making water chestnut pearls for 2 hours",
             "xp": 120,
             "completed": true,
             "archived": true,
@@ -40,7 +40,7 @@
         },
         {
             "id": 5,
-            "title": "Add `Projects` section to CV",
+            "title": "[Internship] Add `Projects` section to CV",
             "xp": 50,
             "completed": true,
             "archived": true,
@@ -48,16 +48,261 @@
         },
         {
             "id": 6,
-            "title": "Completing DES section in Crypto",
+            "title": "[Studying] Completing DES section in Crypto",
             "xp": 75,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-20 03:36 PM"
+        },
+        {
+            "id": 7,
+            "title": "[System] Deploy the app on PythonAnywhere",
+            "xp": 50,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-19 09:59 PM"
+        },
+        {
+            "id": 8,
+            "title": "[Tutoring] Create a There is/There are worksheet",
+            "xp": 75,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-19 11:28 PM"
+        },
+        {
+            "id": 9,
+            "title": "[Others] Review Excel Template for Aunt Dung",
+            "xp": 50,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-21 10:53 AM"
+        },
+        {
+            "id": 10,
+            "title": "[Others] Review Word Template for Aunt Dung",
+            "xp": 50,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-20 11:18 AM"
+        },
+        {
+            "id": 11,
+            "title": "[Daily] Wake up at 06.45 a.m.",
+            "xp": 20,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-22 07:10 AM"
+        },
+        {
+            "id": 12,
+            "title": "[Side Quest] Working for 30 minutes",
+            "xp": 30,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-20 11:54 AM"
+        },
+        {
+            "id": 13,
+            "title": "[Side Quest] Working for 50 minutes",
+            "xp": 50,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-20 12:59 PM"
+        },
+        {
+            "id": 14,
+            "title": "[Studying] Get Excellent Student Certificate at A5-101",
+            "xp": 50,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-20 02:04 PM"
+        },
+        {
+            "id": 15,
+            "title": "[Others] Photocopying for Vchoc",
+            "xp": 30,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-20 05:00 PM"
+        },
+        {
+            "id": 16,
+            "title": "[Studying] Create an ideal time table for sem 261",
+            "xp": 60,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-20 10:51 PM"
+        },
+        {
+            "id": 17,
+            "title": "[Studying] Send a registration form to Faculty for Internship",
+            "xp": 50,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-20 06:00 PM"
+        },
+        {
+            "id": 18,
+            "title": "[Studying] Complete THM `Alert Triage with Splunk` room`",
+            "xp": 75,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-20 10:03 PM"
+        },
+        {
+            "id": 19,
+            "title": "[Studying] Complete THM 'Alert Triage With Elastic' room",
+            "xp": 100,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-22 09:43 PM"
+        },
+        {
+            "id": 20,
+            "title": "[Tutoring] Prepare teaching materials for Reading Unit 5, Unit 6",
+            "xp": 120,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-21 01:04 PM"
+        },
+        {
+            "id": 21,
+            "title": "[Studying] Register your sem 261 ideal time table to the system",
+            "xp": 100,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-21 10:47 AM"
+        },
+        {
+            "id": 22,
+            "title": "[Studying] Find referenced materials for Web Programming",
+            "xp": 30,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-21 09:08 AM"
+        },
+        {
+            "id": 23,
+            "title": "[Studying] Send the new list of subjects in sem 261 to Mr. Thai",
+            "xp": 50,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-21 05:19 PM"
+        },
+        {
+            "id": 24,
+            "title": "[System] Update `History` page for the app`",
+            "xp": 30,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-21 01:34 PM"
+        },
+        {
+            "id": 25,
+            "title": "[Tutoring] Print handouts for Pre-Starters and KET level before 05:00 PM",
+            "xp": 25,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-21 04:53 PM"
+        },
+        {
+            "id": 26,
+            "title": "[Daily] Do the chores",
+            "xp": 30,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-21 06:20 PM"
+        },
+        {
+            "id": 27,
+            "title": "[Others] Prepare job application package for Vchoc",
+            "xp": 100,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-21 08:37 PM"
+        },
+        {
+            "id": 28,
+            "title": "[Internship] Send internship application forms to VCS, Bouygues Construction IT, and FPT Telecom. ",
+            "xp": 150,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-21 11:30 PM"
+        },
+        {
+            "id": 29,
+            "title": "[Others] Drive Vchoc to E-Teacher centre for interview",
+            "xp": 60,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-22 12:34 PM"
+        },
+        {
+            "id": 30,
+            "title": "[Others] Drive Vchoc to school for basic IT test registration",
+            "xp": 60,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-22 12:34 PM"
+        },
+        {
+            "id": 31,
+            "title": "[Tutoring] Send teaching report for Pre-Starters and KET classes to Mrs. Quyen",
+            "xp": 30,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-21 11:48 PM"
+        },
+        {
+            "id": 32,
+            "title": "[Daily] Do the chores + Clean cat\u2019s tray",
+            "xp": 100,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-22 06:21 PM"
+        },
+        {
+            "id": 33,
+            "title": "[Daily] Swap another 20L bottle of water",
+            "xp": 15,
+            "completed": true,
+            "archived": true,
+            "completed_at": "2026-07-22 06:21 PM"
+        },
+        {
+            "id": 34,
+            "title": "[Chores] Clean 2 ceiling fans",
+            "xp": 150,
+            "completed": false,
+            "archived": false,
+            "completed_at": null
+        },
+        {
+            "id": 35,
+            "title": "[Studying] Complete THM `ItsyBitsy` room",
+            "xp": 100,
             "completed": false,
             "archived": false,
             "completed_at": null
         }
     ],
-    "task_id_counter": 7,
+    "task_id_counter": 36,
     "stats": {
-        "total_quests_completed": 2
+        "total_quests_completed": 31
     },
-    "achievements": []
+    "achievements": [
+        {
+            "id": "q5",
+            "unlocked_at": "2026-07-19 04:28 PM"
+        },
+        {
+            "id": "q10",
+            "unlocked_at": "2026-07-20 08:36 AM"
+        },
+        {
+            "id": "q25",
+            "unlocked_at": "2026-07-21 11:48 PM"
+        }
+    ]
 }

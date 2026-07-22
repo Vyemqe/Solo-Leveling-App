@@ -7,28 +7,40 @@
         display: flex; justify-content: space-between; align-items: center;
         border-left: 3px solid #55f;
     }
+    .date-header {
+        display: flex; justify-content: space-between; align-items: flex-end;
+        border-bottom: 2px solid var(--sl-blue); padding-bottom: 5px;
+        margin-top: 30px; margin-bottom: 15px;
+    }
+    .date-header h3 { margin: 0; color: var(--sl-blue); letter-spacing: 1px; }
+    .date-header span { color: #aaa; font-weight: bold; }
 </style>
 
 <div class="container" style="grid-template-columns: 1fr;">
     <div class="panel">
-        <h2>Completed Quests Log</h2>
-        <ul class="task-list">
-            {% if tasks|length == 0 %}
-                <p style="text-align: center; color: #aaa;">No completed quests found.</p>
-            {% endif %}
-            
-            {% for task in tasks %}
-            <li class="task-item">
-                <div>
-                    <strong style="color: #00f0ff;">[CLEARED]</strong> {{ task.title }}
-                    {% if task.completed_at %}
-                    <br><small style="color: #888;">Cleared on: {{ task.completed_at }}</small>
-                    {% endif %}
-                </div>
-                <div style="color: #ffd700; font-weight: bold;">+{{ task.xp }} XP</div>
-            </li>
-            {% endfor %}
-        </ul>
+        <h2 style="margin-bottom: 0;">Completed Quests Log</h2>
+        {% if grouped_tasks|length == 0 %}
+            <p style="text-align: center; color: #aaa; margin-top: 20px;">No completed quests found.</p>
+        {% endif %}
+        {% for date, tasks in grouped_tasks.items() %}
+            <div class="date-header">
+                <h3>{{ date }}</h3>
+                <span>{{ tasks|length }} Quests Cleared</span>
+            </div>
+            <ul class="task-list">
+                {% for task in tasks %}
+                <li class="task-item">
+                    <div>
+                        <strong style="color: #00f0ff;">[CLEARED]</strong> {{ task.title }}
+                        {% if task.completed_at %}
+                        <br><small style="color: #888;">Cleared at: {{ task.completed_at.split(' ', 1)[1] }}</small>
+                        {% endif %}
+                    </div>
+                    <div style="color: #ffd700; font-weight: bold;">+{{ task.xp }} XP</div>
+                </li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
     </div>
 </div>
 {% endblock %}

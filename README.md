@@ -22,4 +22,5 @@ Enjoy the journey to become the better version of yourself!!!
 - **v1.0.0**: Initial Release.
 - **v1.1.0**: Added *Tier-Ranking System* and *Completed Quests* page.
 - **v1.1.1**: Added `datetime` module to support timestamp logging for **Completed Quests** page.
-- **v2.0.0**: Added *Achievement System* and restructure the app.
+- **v2.0.0**: Added *Achievement System* and restructure the app. Scale the XP modifer from 50% to 25%.
+- **v2.0.1**: Grouped cleared quests daily in `History` page.
